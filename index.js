@@ -21,29 +21,29 @@ module.exports = function reactComponentLoader (source) {
   const matched = source.match(/\/\*\*\*\s*(react-component-pack-loader\?[^\s]+)\s*\*\*\*\//)
   let type
   let style
-  if (!matched) {
-    const pkgs = Object.keys(options)
-    for (const pkg of pkgs) {
-      const conf = createConfig(options[pkg])
-      const indexRe = new RegExp(`${pkg}/${conf.index}`)
-      const assetsRe = new RegExp(`${pkg}/${conf.assets}`)
-      if (this.resourcePath.match(indexRe)) {
-        type = 'index'
-        style = conf.style
-        break
-      } else if (this.resourcePath.match(assetsRe)) {
-        type = 'assets'
-        break
-      }
-    }
 
-    if (!type) {
-      return source
+  const pkgs = Object.keys(options)
+  for (const pkg of pkgs) {
+    const conf = createConfig(options[pkg])
+    const indexRe = new RegExp(`${pkg}/${conf.index}`)
+    const assetsRe = new RegExp(`${pkg}/${conf.assets}`)
+    if (this.resourcePath.match(indexRe)) {
+      type = 'index'
+      style = conf.style
+      break
+    } else if (this.resourcePath.match(assetsRe)) {
+      type = 'assets'
+      break
     }
-  } else {
+  }
+
+  if (!matched && !type) {
+    return source
+  } else if (matched) {
     const notation = new url.URL(matched[1], URL_BASE)
     type = notation.searchParams.get('type')
-    style = notation.searchParams.get('style') || DEFAULT_STYLE
+    // can override by user
+    style = style || notation.searchParams.get('style') || DEFAULT_STYLE
   }
 
   switch (type) {
