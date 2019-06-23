@@ -1,48 +1,54 @@
 const url = require('url')
+const path = require('path')
 const { getOptions } = require('loader-utils')
-const validateOptions = require('schema-utils')
-
-const schema = {
-  test: [RegExp],
-  style: [String],
-  scriptExts: [String]
-}
 
 const DEFAULT_EXTS = ['js', 'mjs', 'ts', 'jsx', 'tsx']
-const URL_BASE = 'http://localhost';
+const URL_BASE = 'http://localhost'
+const DEFAULT_STYLE = 'index.css'
+
+function createConfig (opt) {
+  return Object.assign({
+    index: `index\\.(${DEFAULT_EXTS.join('|')})$`,
+    assets: `assets.*\\.(${DEFAULT_EXTS.join('|')})$`,
+    style: DEFAULT_STYLE
+  }, opt)
+}
 
 module.exports = function reactComponentLoader (source) {
-  const options = Object.assign({
-    test: [],
-    style: 'index.css',
-    scriptExts: DEFAULT_EXTS
-  }, getOptions(this))
-
-  validateOptions(schema, options, 'react component loader option validation failed')
+  const options = getOptions(this)
 
   // put notation like `/*** component-loader?type=index|assets&style=index.less ***/` into file to config component
   const matched = source.match(/\/\*\*\*\s*(react-component-pack-loader\?[^\s]+)\s*\*\*\*\//)
-  if (!matched && !(options.test && options.test.length)) {
-    return source
-  }
+  let type
+  let style
+  if (!matched) {
+    const pkgs = Object.keys(options)
+    for (const pkg of pkgs) {
+      const conf = createConfig(options[pkg])
+      const indexRe = new RegExp(`${pkg}/${conf.index}`)
+      const assetsRe = new RegExp(`${pkg}/${conf.assets}`)
+      if (this.resourcePath.match(indexRe)) {
+        type = 'index'
+        style = conf.style
+        break
+      } else if (this.resourcePath.match(assetsRe)) {
+        type = 'assets'
+        break
+      }
+    }
 
-  let notation
-  if (matched) {
-    notation = new url.URL(matched[1], URL_BASE)
-  } else {
-    const rule = options.test.find(r => this.resourcePath.match(r))
-    if (rule) {
-      notation = new url.URL('?type=index', URL_BASE)
-    } else {
+    if (!type) {
       return source
     }
+  } else {
+    const notation = new url.URL(matched[1], URL_BASE)
+    type = notation.searchParams.get('type')
+    style = notation.searchParams.get('style') || DEFAULT_STYLE
   }
-  const style = notation.searchParams.get('style') || options.style
 
-  switch (notation.searchParams.get('type')) {
+  switch (type) {
     case 'index':
-      const scriptRegExp = new RegExp(`index.(${options.scriptExts.join('|')})$`)
-      const stylePath = this.resourcePath.replace(scriptRegExp, `${style}`)
+      const stylePath = path.join(path.dirname(this.resourcePath), style)
       const callback = this.async()
       this.fs.stat(stylePath, (err, stat) => {
         if (err) {

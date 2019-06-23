@@ -1,4 +1,4 @@
-/*** react-component-pack-loader?type=index&style=style/index.css ***/
+/*** react-component-pack-loader?type=index&style=style/index.less ***/
 
 import My from './My';
 import { JPG1, JPG2 } from './assets';

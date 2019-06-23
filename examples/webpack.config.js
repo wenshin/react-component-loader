@@ -21,8 +21,9 @@ module.exports = {
         }, {
           loader: path.resolve('../index.js'),
           options: {
-            test: [/My1\/index\.(js|ts|jsx|tsx)$/],
-            style: 'style/index.less'
+            My1: {
+              style: 'style/index.css'
+            }
           }
         }]
       },

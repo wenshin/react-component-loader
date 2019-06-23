@@ -86,10 +86,10 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My1/style/index.less":
-/*!*****************************************************************************************************************!*\
-  !*** ../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My1/style/index.less ***!
-  \*****************************************************************************************************************/
+/***/ "../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My/style/index.less":
+/*!****************************************************************************************************************!*\
+  !*** ../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My/style/index.less ***!
+  \****************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -100,16 +100,16 @@ exports.push([module.i, "body {\n  color: #ff0000;\n}\n.a .b {\n  color: #000000
 
 /***/ }),
 
-/***/ "../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css":
-/*!***********************************************************************!*\
-  !*** ../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css ***!
-  \***********************************************************************/
+/***/ "../node_modules/css-loader/dist/cjs.js!./src/My1/style/index.css":
+/*!************************************************************************!*\
+  !*** ../node_modules/css-loader/dist/cjs.js!./src/My1/style/index.css ***!
+  \************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "../node_modules/css-loader/dist/runtime/api.js")(false);
 // Module
-exports.push([module.i, "body {\n  color: #ff0000;\n}\n", ""]);
+exports.push([module.i, "body {\n  color: #ff0000;\n}\n\nhtml {\n  color: #000;\n}\n", ""]);
 
 
 /***/ }),
@@ -792,8 +792,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _style_index_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style/index.css */ "./src/My/style/index.css");
-/* harmony import */ var _style_index_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_style_index_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _style_index_less__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style/index.less */ "./src/My/style/index.less");
+/* harmony import */ var _style_index_less__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_style_index_less__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _My__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./My */ "./src/My/My.js");
 /* harmony import */ var _assets__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./assets */ "./src/My/assets/index.js");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -801,7 +801,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
-/*** react-component-pack-loader?type=index&style=style/index.css ***/
+/*** react-component-pack-loader?type=index&style=style/index.less ***/
 
 
 
@@ -839,15 +839,15 @@ function _a() {
 
 /***/ }),
 
-/***/ "./src/My/style/index.css":
-/*!********************************!*\
-  !*** ./src/My/style/index.css ***!
-  \********************************/
+/***/ "./src/My/style/index.less":
+/*!*********************************!*\
+  !*** ./src/My/style/index.less ***!
+  \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!./index.css */ "../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css");
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/less-loader/dist/cjs.js!./index.less */ "../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My/style/index.less");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -885,6 +885,28 @@ function My() {
 
 /***/ }),
 
+/***/ "./src/My1/assets/1.jpg":
+/*!******************************!*\
+  !*** ./src/My1/assets/1.jpg ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "cac167ac35557ecce966123350e36000.jpg";
+
+/***/ }),
+
+/***/ "./src/My1/assets/2.jpg":
+/*!******************************!*\
+  !*** ./src/My1/assets/2.jpg ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "cac167ac35557ecce966123350e36000.jpg";
+
+/***/ }),
+
 /***/ "./src/My1/assets/index.js":
 /*!*********************************!*\
   !*** ./src/My1/assets/index.js ***!
@@ -894,10 +916,14 @@ function My() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JPG1", function() { return JPG1; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JPG2", function() { return JPG2; });
-var JPG1 = './1.jpg';
-var JPG2 = './2.jpg';
+/* harmony import */ var _1_jpg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./1.jpg */ "./src/My1/assets/1.jpg");
+/* harmony import */ var _1_jpg__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_1_jpg__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, "JPG1", function() { return _1_jpg__WEBPACK_IMPORTED_MODULE_0___default.a; });
+/* harmony import */ var _2_jpg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./2.jpg */ "./src/My1/assets/2.jpg");
+/* harmony import */ var _2_jpg__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_2_jpg__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, "JPG2", function() { return _2_jpg__WEBPACK_IMPORTED_MODULE_1___default.a; });
+
+
 
 /***/ }),
 
@@ -910,8 +936,8 @@ var JPG2 = './2.jpg';
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _style_index_less__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style/index.less */ "./src/My1/style/index.less");
-/* harmony import */ var _style_index_less__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_style_index_less__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _style_index_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style/index.css */ "./src/My1/style/index.css");
+/* harmony import */ var _style_index_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_style_index_css__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _My__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./My */ "./src/My1/My.js");
 /* harmony import */ var _assets__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./assets */ "./src/My1/assets/index.js");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -955,15 +981,15 @@ function _a() {
 
 /***/ }),
 
-/***/ "./src/My1/style/index.less":
-/*!**********************************!*\
-  !*** ./src/My1/style/index.less ***!
-  \**********************************/
+/***/ "./src/My1/style/index.css":
+/*!*********************************!*\
+  !*** ./src/My1/style/index.css ***!
+  \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/less-loader/dist/cjs.js!./index.less */ "../node_modules/css-loader/dist/cjs.js!../node_modules/less-loader/dist/cjs.js!./src/My1/style/index.less");
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!./index.css */ "../node_modules/css-loader/dist/cjs.js!./src/My1/style/index.css");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 

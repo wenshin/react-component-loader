@@ -79,8 +79,11 @@ module: {
       }, {
         loader: path.resolve('./component-loader'),
         options: {
-          test: [/My1\/index\.(js|ts)/],
-          style: 'style/index.less'
+          'My1': {
+            index: 'index.(js|ts)$',
+            assets: 'assets/index.(js|ts)$',
+            style: 'index.css'
+          },
         }
       }]
     },
@@ -104,11 +107,13 @@ module: {
 
 ```typescript
 type Option = {
-  // array of RegExp to test the component index file
-  test: RegExp[];
-  // the relative style path for import, should without './'
-  style: string;
-  // the
-  scriptExt: string[];
+  [rootPath: string]: {
+    // string for RegExp constructor, default is index.(js|ts|jsx|tsx|mjs)
+    index: string;
+    // string for RegExp constructor, default is assets/index.(js|ts|jsx|tsx|mjs)
+    assets: string;
+    // the relative style path for import, should without './', default is 'index.css'
+    style: string;
+  }
 }
 ```
