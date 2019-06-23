@@ -18,9 +18,9 @@ component
 you can see more examples in `.examples/src`
 
 ## Index file
-the notation `/*** react-component-pack-loader?type=index&style=less ***/` will change file
+the comment `/* react-component-pack-loader?type=index&style=less */` will change file
 ```javascript
-/*** react-component-pack-loader?type=index&style=style/index.less ***/
+/* react-component-pack-loader?type=index&style=style/index.less */
 
 import My from './My';
 import { JPG1, JPG2 } from './assets';
@@ -30,7 +30,7 @@ export default My;
 
 to
 ```javascript
-/*** react-component-pack-loader?type=index&style=style/index.less ***/
+// react-component-pack-loader?type=index&style=style/index.less
 
 import 'style/index.less';
 import My from './My';
@@ -41,9 +41,9 @@ export default My;
 
 
 ## Assets
-the notation `/*** react-component-pack-loader?type=assets ***/` will change file
+the notation `/* react-component-pack-loader?type=assets */` will change file
 ```javascript
-/*** react-component-pack-loader?type=assets ***/
+// react-component-pack-loader?type=assets
 
 export const JPG1 = './1.jpg';
 export const JPG2 = './2.jpg';
@@ -51,7 +51,7 @@ export const JPG2 = './2.jpg';
 
 to
 ```javascript
-/*** react-component-pack-loader?type=assets ***/
+// react-component-pack-loader?type=assets
 
 export { default as JPG1 } from './1.jpg';
 export { default as JPG2 } from './2.jpg';

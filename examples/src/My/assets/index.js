@@ -1,4 +1,4 @@
-/*** react-component-pack-loader?type=assets ***/
+// react-component-pack-loader?type=assets
 
 export const JPG1 = './1.jpg';
 

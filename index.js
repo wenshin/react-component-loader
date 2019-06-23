@@ -17,8 +17,8 @@ function createConfig (opt) {
 module.exports = function reactComponentLoader (source) {
   const options = getOptions(this)
 
-  // put notation like `/*** component-loader?type=index|assets&style=index.less ***/` into file to config component
-  const matched = source.match(/\/\*\*\*\s*(react-component-pack-loader\?[^\s]+)\s*\*\*\*\//)
+  // put a comment like `/* component-loader?type=index|assets&style=index.less */` into file to config component
+  const matched = source.match(/\/[/*]+\s*(react-component-pack-loader\?[^\s]+)\s*/)
   let type
   let style
 
