@@ -1,8 +1,9 @@
 {
   "name": "react-component-pack-loader",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "a react component loader for webpack",
   "main": "index.js",
+  "files": ["index.js", "README.md", "LICENSE"],
   "repository": "git@github.com:wenshin/component-loader.git",
   "author": "wenshin2011@gmail.com",
   "license": "MIT",
