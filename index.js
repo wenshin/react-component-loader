@@ -57,8 +57,8 @@ module.exports = function reactComponentLoader (source) {
       const callback = this.async()
       this.resolve(this.context, style, (err, result) => {
         if (err) {
-          console.log(`STYLE PATH ${style} OF ${this.resourcePath} IS NOT EXIST, SKIP`, err)
-          return
+          console.log(`SKIPPING INJECTING STYLE ${style} TO ${this.resourcePath} WHICH NOT EXIST`, this.debug ? err : '')
+          return callback(null, source)
         }
         this.addDependency(result)
         callback(null, `import '${style}'\n${source}`)

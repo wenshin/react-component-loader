@@ -24,6 +24,9 @@ module.exports = {
             src: {
               style: 'aliasModule/style/index.css'
             },
+            lib: {
+              style: 'aliasModule/index.css'
+            },
             My1: {
               style: './style/index.css'
             }
