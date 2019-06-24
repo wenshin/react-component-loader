@@ -1,10 +1,9 @@
 const url = require('url')
-const path = require('path')
 const { getOptions } = require('loader-utils')
 
 const DEFAULT_EXTS = ['js', 'mjs', 'ts', 'jsx', 'tsx']
 const URL_BASE = 'http://localhost'
-const DEFAULT_STYLE = 'index.css'
+const DEFAULT_STYLE = './index.css'
 
 function createConfig (opt) {
   return Object.assign({
@@ -17,7 +16,12 @@ function createConfig (opt) {
 module.exports = function reactComponentLoader (source) {
   const options = getOptions(this)
 
-  // put a comment like `/* component-loader?type=index|assets&style=index.less */` into file to config component
+  const ignored = source.match(/\/[/*]+\s*(react-component-pack-loader\?ignore)\s*/)
+  if (ignored) {
+    return source
+  }
+
+  // put a comment like `/* component-loader?type=index|assets&style=./index.less */` into file to config component
   const matched = source.match(/\/[/*]+\s*(react-component-pack-loader\?[^\s]+)\s*/)
   let type
   let style
@@ -25,9 +29,11 @@ module.exports = function reactComponentLoader (source) {
   const pkgs = Object.keys(options)
   for (const pkg of pkgs) {
     const conf = createConfig(options[pkg])
+    // when a component is not a folder, also can inject style to it
+    const pkgRe = new RegExp(`${pkg}\\.(${DEFAULT_EXTS.join('|')})$`)
     const indexRe = new RegExp(`${pkg}/${conf.index}`)
     const assetsRe = new RegExp(`${pkg}/${conf.assets}`)
-    if (this.resourcePath.match(indexRe)) {
+    if (this.resourcePath.match(pkgRe) || this.resourcePath.match(indexRe)) {
       type = 'index'
       style = conf.style
       break
@@ -48,15 +54,14 @@ module.exports = function reactComponentLoader (source) {
 
   switch (type) {
     case 'index':
-      const stylePath = path.join(path.dirname(this.resourcePath), style)
       const callback = this.async()
-      this.fs.stat(stylePath, (err, stat) => {
+      this.resolve(this.context, style, (err, result) => {
         if (err) {
-          console.log(`${stylePath} NOT EXIST, SKIP`)
+          console.log(`STYLE PATH ${style} OF ${this.resourcePath} IS NOT EXIST, SKIP`, err)
           return
         }
-        this.addDependency(stylePath)
-        callback(null, `import './${style}'\n${source}`)
+        this.addDependency(result)
+        callback(null, `import '${style}'\n${source}`)
       })
       return
     case 'assets':

@@ -100,6 +100,20 @@ exports.push([module.i, "body {\n  color: #ff0000;\n}\n.a .b {\n  color: #000000
 
 /***/ }),
 
+/***/ "../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css":
+/*!***********************************************************************!*\
+  !*** ../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "../node_modules/css-loader/dist/runtime/api.js")(false);
+// Module
+exports.push([module.i, "body {\n  color: #ff0000;\n}\n", ""]);
+
+
+/***/ }),
+
 /***/ "../node_modules/css-loader/dist/cjs.js!./src/My1/style/index.css":
 /*!************************************************************************!*\
   !*** ../node_modules/css-loader/dist/cjs.js!./src/My1/style/index.css ***!
@@ -801,7 +815,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
-/* react-component-pack-loader?type=index&style=style/index.less */
+/* react-component-pack-loader?type=index&style=./style/index.less */
 
 
 
@@ -836,6 +850,36 @@ function _a() {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (_My__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+/***/ }),
+
+/***/ "./src/My/style/index.css":
+/*!********************************!*\
+  !*** ./src/My/style/index.css ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!./index.css */ "../node_modules/css-loader/dist/cjs.js!./src/My/style/index.css");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "../node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
 
 /***/ }),
 
@@ -1036,11 +1080,14 @@ function bar() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _bar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bar */ "./src/bar.js");
-/* harmony import */ var _lib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./lib */ "./src/lib.js");
+/* harmony import */ var aliasModule_style_index_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! aliasModule/style/index.css */ "./src/My/style/index.css");
+/* harmony import */ var aliasModule_style_index_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(aliasModule_style_index_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _bar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./bar */ "./src/bar.js");
+/* harmony import */ var _lib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lib */ "./src/lib.js");
 
 
-Object(_bar__WEBPACK_IMPORTED_MODULE_0__["default"])();
+
+Object(_bar__WEBPACK_IMPORTED_MODULE_1__["default"])();
 
 /***/ }),
 

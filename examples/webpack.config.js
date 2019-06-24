@@ -21,8 +21,11 @@ module.exports = {
         }, {
           loader: path.resolve('../index.js'),
           options: {
+            src: {
+              style: 'aliasModule/style/index.css'
+            },
             My1: {
-              style: 'style/index.css'
+              style: './style/index.css'
             }
           }
         }]
@@ -40,5 +43,10 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'less-loader']
       }
     ]
+  },
+  resolve: {
+    alias: {
+      'aliasModule': path.resolve('./src/My')
+    }
   }
 }

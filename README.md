@@ -18,9 +18,9 @@ component
 you can see more examples in `.examples/src`
 
 ## Index file
-the comment `/* react-component-pack-loader?type=index&style=less */` will change file
+the comment `/* react-component-pack-loader?type=index&style=./style/index.less */` will change file
 ```javascript
-/* react-component-pack-loader?type=index&style=style/index.less */
+/* react-component-pack-loader?type=index&style=./style/index.less */
 
 import My from './My';
 import { JPG1, JPG2 } from './assets';
@@ -30,9 +30,9 @@ export default My;
 
 to
 ```javascript
-// react-component-pack-loader?type=index&style=style/index.less
+// react-component-pack-loader?type=index&style=./style/index.less
 
-import 'style/index.less';
+import './style/index.less';
 import My from './My';
 import { JPG1, JPG2 } from './assets';
 
@@ -82,7 +82,7 @@ module: {
           'My1': {
             index: 'index.(js|ts)$',
             assets: 'assets/index.(js|ts)$',
-            style: 'index.css'
+            style: './index.css'
           },
         }
       }]
@@ -112,8 +112,12 @@ type Option = {
     index: string;
     // string for RegExp constructor, default is assets/index.(js|ts|jsx|tsx|mjs)
     assets: string;
-    // the relative style path for import, should without './', default is 'index.css'
+    // the relative or absolute style path for import, default is './index.css'.
+    // the path will use webpack resolver to resolve
     style: string;
   }
 }
 ```
+
+1. 给任意 js 注入 css or less
+2. 给目录下的 index.js 或者指定文件 注入 css or less
