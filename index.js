@@ -57,11 +57,18 @@ module.exports = function reactComponentLoader (source) {
       const callback = this.async()
       this.resolve(this.context, style, (err, result) => {
         if (err) {
-          console.log(`SKIPPING INJECTING STYLE ${style} TO ${this.resourcePath} WHICH NOT EXIST`, this.debug ? err : '')
+          if (this.debug) {
+            console.log(`\nSKIPPING INJECTING STYLE ${style} TO ${this.resourcePath} WHICH NOT EXIST`, err)
+          }
           return callback(null, source)
         }
         this.addDependency(result)
-        callback(null, `import '${style}'\n${source}`)
+        // put the style the end of the file will get the correct style override order
+        if (source.search(/module\.exports/) > -1 || source.search(/exports\./) > -1 || source.search(/require\([^()]+\)/) > -1) {
+          callback(null, `${source}\nrequire('${style}');`)
+        } else {
+          callback(null, `${source}\nimport '${style}';`)
+        }
       })
       return
     case 'assets':
