@@ -32,15 +32,16 @@ to
 ```javascript
 // react-component-pack-loader?type=index&style=./style/index.less
 
-import './style/index.less';
 import My from './My';
 import { JPG1, JPG2 } from './assets';
 
 export default My;
+import './style/index.less';
 ```
 
 
-## Assets
+## Assets (Experiment)
+this feature is not fully test, use carefully!
 the notation `/* react-component-pack-loader?type=assets */` will change file
 ```javascript
 // react-component-pack-loader?type=assets
@@ -64,19 +65,14 @@ export { default as JPG2 } from './2.jpg';
 yarn add react-component-pack-loader
 ```
 
-## Webpack config
+## Webpack loader config
 ```javascript
 module: {
   rules: [
     {
-      test: /\.m?js$/,
+      test: /\.(ts|js)$/,
       exclude: /(node_modules|bower_components)/,
       use: [{
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env']
-        }
-      }, {
         loader: path.resolve('./component-loader'),
         options: {
           'My1': {
@@ -84,6 +80,16 @@ module: {
             assets: 'assets/index.(js|ts)$',
             style: './index.css'
           },
+        }
+      }]
+    },
+    {
+      test: /\.(ts|tsx)$/,
+      exclude: /(node_modules|bower_components)/,
+      use: [{
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env']
         }
       }]
     },
@@ -104,10 +110,10 @@ module: {
 ```
 
 ## Options
-
+you can use webpack loader `options` to config component and override the file comment notation.
 ```typescript
 type Option = {
-  [rootPath: string]: {
+  [pathRegExp: string]: {
     // string for RegExp constructor, default is index.(js|ts|jsx|tsx|mjs)
     index: string;
     // string for RegExp constructor, default is assets/index.(js|ts|jsx|tsx|mjs)
@@ -118,6 +124,4 @@ type Option = {
   }
 }
 ```
-
-1. 给任意 js 注入 css or less
-2. 给目录下的 index.js 或者指定文件 注入 css or less
+`pathRegExp + index` is the regular expression for test the absolute file path. if matched will insert the `import '${style}'` into the file.
