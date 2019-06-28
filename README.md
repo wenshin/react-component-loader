@@ -4,7 +4,7 @@ a react component of a directory loader for webpack
 # What is a react component
 a react component may contains scripts (js, jsx, ts, tsx, mjs, etc.), styles (css, less, styl, scss) and assets (images, files, fonts, etc.).
 
-## The simplest component
+## The component structure
 ```
 component
 ├── script.js
@@ -12,52 +12,24 @@ component
 │   ├── 1.jpg
 │   ├── 2.png
 │   └── index.js
-├── index.js
-└── index.css
+├── style
+│   └── index.less
+│   └── index.css
+└── index.js
 ```
 you can see more examples in `.examples/src`
 
-## Index file
-the comment `/* react-component-pack-loader?type=index&style=./style/index.less */` will change file
-```javascript
-/* react-component-pack-loader?type=index&style=./style/index.less */
-
-import My from './My';
-import { JPG1, JPG2 } from './assets';
-
-export default My;
-```
-
-to
-```javascript
-// react-component-pack-loader?type=index&style=./style/index.less
-
-import My from './My';
-import { JPG1, JPG2 } from './assets';
-
-export default My;
-import './style/index.less';
-```
-
-
 ## Assets (Experiment)
-this feature is not fully test, use carefully!
-the notation `/* react-component-pack-loader?type=assets */` will change file
+when match `/assets/index.(js|ts|jsx|tsx)/`, the loader will change
 ```javascript
-// react-component-pack-loader?type=assets
-
 export const JPG1 = './1.jpg';
 export const JPG2 = './2.jpg';
 ```
-
 to
 ```javascript
-// react-component-pack-loader?type=assets
-
 export { default as JPG1 } from './1.jpg';
 export { default as JPG2 } from './2.jpg';
 ```
-
 
 # Usage
 ## Install
@@ -75,11 +47,18 @@ module: {
       use: [{
         loader: path.resolve('./component-loader'),
         options: {
-          'My1': {
-            index: 'index.(js|ts)$',
-            assets: 'assets/index.(js|ts)$',
-            style: './index.css'
-          },
+          baseStyleTarget: path.resolve('./src/index.js'),
+          components: [{
+            // is default
+            lib: 'lib',
+            // will inject to baseStyleTarget script, should without extension
+            baseStyle: 'lib/style/base',
+            // will inject to component file
+            style: 'less'
+          }, {
+            test: 'My',
+            style: 'less'
+          }]
         }
       }]
     },
@@ -110,18 +89,27 @@ module: {
 ```
 
 ## Options
-you can use webpack loader `options` to config component and override the file comment notation.
+you can use webpack loader `options` as bellow.
 ```typescript
 type Option = {
-  [pathRegExp: string]: {
-    // string for RegExp constructor, default is index.(js|ts|jsx|tsx|mjs)
-    index: string;
+  // absolute path for inject base styles
+  baseStyleTarget: string,
+  // the array order is the same with baseStyle injection order
+  components: Array<{
+    // the webpack resolve path for library, this will search pakcage.json of lib,
+    // to find `components` property and append to options
+    lib: string;
+    // the style file path to inject to `baseStyleTarget`, should not with extension
+    baseStyle: string;
+
+    // determine match or not, when lib is set the test will auto set to
+    test: string | RegExp;
     // string for RegExp constructor, default is assets/index.(js|ts|jsx|tsx|mjs)
-    assets: string;
-    // the relative or absolute style path for import, default is './index.css'.
-    // the path will use webpack resolver to resolve
+    assetsRule: string | RegExp;
+    componentRule: string | RegExp;
+    // 'less' | 'css' | 'styl' | 'scss'
     style: string;
-  }
+  }>
 }
 ```
 `pathRegExp + index` is the regular expression for test the absolute file path. if matched will insert the `import '${style}'` into the file.

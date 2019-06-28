@@ -1,4 +1,5 @@
-import bar from './bar';
-import { My, My1 } from './lib';
+import lib from 'lib'
+import bar from './bar'
+import { My } from './My'
 
-bar();
+bar()

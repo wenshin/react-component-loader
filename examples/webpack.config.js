@@ -11,25 +11,32 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js/,
+        use: [{
+          loader: path.resolve('../index.js'),
+          options: {
+            baseStyleTarget: path.resolve('./src/index.js'),
+            components: [{
+              // is default
+              lib: 'lib',
+              // will inject to baseStyleTarget script
+              baseStyle: 'lib/style/base',
+              // will inject to component file
+              style: 'less'
+            }, {
+              test: 'My',
+              style: 'less'
+            }]
+          }
+        }]
+      },
+      {
         test: /\.m?js$/,
         exclude: /(node_modules|bower_components)/,
         use: [{
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env']
-          }
-        }, {
-          loader: path.resolve('../index.js'),
-          options: {
-            src: {
-              style: 'aliasModule/style/index.css'
-            },
-            lib: {
-              style: 'aliasModule/index.css'
-            },
-            My1: {
-              style: './style/index.css'
-            }
           }
         }]
       },
@@ -49,7 +56,11 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'aliasModule': path.resolve('./src/My')
+      'lib': path.resolve('./src/lib')
     }
   }
 }
+// 组件自动加载样式，组件按需加载
+// component load 可以屏蔽底层依赖的配置，使用者只需要关心真正自己依赖的库
+// 在 node module package 中的 json 文件中使用 'react-component-pack-loader': {'@byted/byteui'}
+// treeshake 如果可用的话

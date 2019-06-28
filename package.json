@@ -1,6 +1,6 @@
 {
   "name": "react-component-pack-loader",
-  "version": "0.0.10",
+  "version": "1.0.0",
   "description": "a react component loader for webpack",
   "main": "index.js",
   "files": ["index.js", "README.md", "LICENSE"],

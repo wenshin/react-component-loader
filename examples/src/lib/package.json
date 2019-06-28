@@ -1,0 +1,13 @@
+{
+  "name": "lib",
+  "version": "0.0.1",
+  "description": "a react component loader for webpack",
+  "main": "index.js",
+  "files": ["index.js", "README.md", "LICENSE"],
+  "repository": "git@github.com:wenshin/component-loader.git",
+  "author": "wenshin2011@gmail.com",
+  "license": "MIT",
+  "components": [
+    { "lib": "./lib-inner", "baseStyle": "./lib-inner/style/base.less" }
+  ]
+}

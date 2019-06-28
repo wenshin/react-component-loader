@@ -1,83 +1,160 @@
-const url = require('url')
 const { getOptions } = require('loader-utils')
+const { promisify } = require('util')
 
-const DEFAULT_EXTS = ['js', 'mjs', 'ts', 'jsx', 'tsx']
-const URL_BASE = 'http://localhost'
-const DEFAULT_STYLE = './index.css'
+const STYLE_PATH = './style/index'
 
-function createConfig (opt) {
-  return Object.assign({
-    index: `index\\.(${DEFAULT_EXTS.join('|')})$`,
-    assets: `assets.*\\.(${DEFAULT_EXTS.join('|')})$`,
-    style: DEFAULT_STYLE
-  }, opt)
-}
+function createOption (opt, parent) {
+  const option = Object.assign({
+    lib: '', // node_modules or regular_expression
+    baseStyle: '',
+    test: null, // RegExp or string
+    assetsRule: /assets\/index\.(js|mjs|ts|jsx|tsx)$/,
+    componentRule: /\/index\.(js|mjs|ts|jsx|tsx)$/,
+    style: 'css'
+  }, parent, opt)
 
-module.exports = function reactComponentLoader (source) {
-  const options = getOptions(this)
-
-  const ignored = source.match(/\/[/*]+\s*(react-component-pack-loader\?ignore)\s*/)
-  if (ignored) {
-    return source
+  if (option.test) {
+    option.test = new RegExp(option.test)
   }
 
-  // put a comment like `/* component-loader?type=index|assets&style=./index.less */` into file to config component
-  const matched = source.match(/\/[/*]+\s*(react-component-pack-loader\?[^\s]+)\s*/)
-  let type
-  let style
+  if (option.baseStyle) {
+    option.baseStyle = `${option.baseStyle}.${opt.style}`
+  }
 
-  const pkgs = Object.keys(options)
-  for (const pkg of pkgs) {
-    const conf = createConfig(options[pkg])
-    // when a component is not a folder, also can inject style to it
-    const pkgRe = new RegExp(`${pkg}\\.(${DEFAULT_EXTS.join('|')})$`)
-    const indexRe = new RegExp(`${pkg}/${conf.index}`)
-    const assetsRe = new RegExp(`${pkg}/${conf.assets}`)
-    if (this.resourcePath.match(pkgRe) || this.resourcePath.match(indexRe)) {
-      type = 'index'
-      style = conf.style
-      break
-    } else if (this.resourcePath.match(assetsRe)) {
-      type = 'assets'
-      break
+  option.style = `${STYLE_PATH}.${opt.style}`
+  return option
+}
+
+function styleImport (isCommonJS, style) {
+  return isCommonJS ? `\nrequire('${style}');\n` : `\nimport '${style}';\n`
+}
+
+function injectStyle (source, style, first) {
+  const isCommonJS = source.search(/module\.exports/) > -1 || source.search(/exports\./) > -1 || source.search(/require\([^()]+\)/) > -1
+  let styleCode = ''
+  if (Array.isArray(style)) {
+    styleCode = ''
+    style.forEach(styl => {
+      // 优先级高的样式放到后面加载
+      styleCode = styleImport(isCommonJS, styl) + styleCode
+    })
+  } else {
+    styleCode = styleImport(isCommonJS, style)
+  }
+  // put the style the end of the file will get the correct style override order
+  return first ? `${styleCode}${source}` : `${source}${styleCode}`
+}
+
+const optionsCached = {
+  baseStyleTarget: '',
+  baseStyles: [],
+  components: null
+}
+
+async function cacheOptions (loader, context, components, parent) {
+  if (!components) {
+    return
+  }
+
+  for (const comp of components) {
+    const conf = createOption(comp, parent && { style: parent.style })
+    if (conf.baseStyle) {
+      try {
+        const baseStyle = await loader.resolve.promise(context, conf.baseStyle)
+        optionsCached.baseStyles.push(baseStyle)
+        loader.addDependency(baseStyle)
+      } catch (err) {
+        if (loader.mode === 'development') {
+          console.log(`\n${conf.baseStyle} IS NOT RESOLVED`, err)
+        }
+      }
+    }
+
+    if (conf.lib) {
+      try {
+        const pkgPath = await loader.resolve.promise(context, `${conf.lib}/package.json`)
+        const pkg = require(pkgPath)
+        const ctx = pkgPath.replace('/package.json', '')
+
+        conf.test = new RegExp(ctx)
+        if (pkg.components) {
+          await cacheOptions(loader, ctx, pkg.components, conf)
+        }
+      } catch (err) {
+        if (loader.mode === 'development') {
+          console.log(`\n${conf.lib} IS NOT A NODE_MODULE`, err)
+        }
+      }
+    }
+    optionsCached.components.push(conf)
+  }
+}
+
+function processLoader (loader, source, cb) {
+  const isBaseStyleTarget = optionsCached.baseStyleTarget && loader.resourcePath === optionsCached.baseStyleTarget
+  if (isBaseStyleTarget) {
+    return injectStyle(source, optionsCached.baseStyles, true)
+  }
+
+  let conf = null
+  for (const comp of optionsCached.components) {
+    if (loader.resourcePath.match(comp.test)) {
+      conf = comp
     }
   }
 
-  if (!matched && !type) {
+  if (!conf) {
     return source
-  } else if (matched) {
-    const notation = new url.URL(matched[1], URL_BASE)
-    type = notation.searchParams.get('type')
-    // can override by user
-    style = style || notation.searchParams.get('style') || DEFAULT_STYLE
   }
 
-  switch (type) {
-    case 'index':
-      const callback = this.async()
-      this.resolve(this.context, style, (err, result) => {
-        if (err) {
-          if (this.debug) {
-            console.log(`\nSKIPPING INJECTING STYLE ${style} TO ${this.resourcePath} WHICH NOT EXIST`, err)
-          }
-          return callback(null, source)
+  const isAssets = optionsCached.assetsRule && loader.resourcePath.match(optionsCached.assetsRule)
+
+  if (isAssets) {
+    // replace `export const JPG = './foo.jpg'` to `export { default as JPG } from './foo.jpg'`
+    return source.replace(
+      /export\s+(const|var|let)\s+(\w+)\s*=\s*(['"][^'"]+['"])/gm,
+      'export { default as $2 } from $3'
+    )
+  }
+
+  const asyncInjectStyle = (style) => {
+    const callback = cb || loader.async()
+    loader.resolve(loader.context, style, (err, result) => {
+      if (err) {
+        if (loader.mode === 'development') {
+          console.log(`\nSKIPPING INJECTING STYLE ${style} TO ${loader.resourcePath} WHICH NOT EXIST`, err)
         }
-        this.addDependency(result)
-        // put the style the end of the file will get the correct style override order
-        if (source.search(/module\.exports/) > -1 || source.search(/exports\./) > -1 || source.search(/require\([^()]+\)/) > -1) {
-          callback(null, `${source}\nrequire('${style}');`)
-        } else {
-          callback(null, `${source}\nimport '${style}';`)
+        return callback(null, source)
+      }
+      loader.addDependency(result)
+      callback(null, injectStyle(source, style))
+    })
+  }
+
+  const isComponent = conf.componentRule && loader.resourcePath.match(conf.componentRule)
+  if (isComponent) {
+    asyncInjectStyle(conf.style)
+    return
+  }
+
+  return source
+}
+
+module.exports = function reactComponentLoader (source) {
+  if (!optionsCached.components) {
+    const options = getOptions(this)
+    optionsCached.baseStyleTarget = options.baseStyleTarget
+    optionsCached.components = []
+    this.resolve.promise = promisify(this.resolve.bind(this))
+    const callback = this.async()
+    cacheOptions(this, this.context, options.components)
+      .then(() => {
+        const src = processLoader(this, source, callback)
+        if (src) {
+          callback(null, src)
         }
       })
-      return
-    case 'assets':
-      // replace `export const JPG = './foo.jpg'` to `export { default as JPG } from './foo.jpg'`
-      return source.replace(
-        /export\s+(const|var|let)\s+(\w+)\s*=\s*(['"][^'"]+['"])/gm,
-        'export { default as $2 } from $3'
-      )
-    default:
-      return source
+  } else {
+    return processLoader(this, source)
   }
 }
