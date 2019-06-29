@@ -18,10 +18,10 @@ function createOption (opt, parent) {
   }
 
   if (option.baseStyle) {
-    option.baseStyle = `${option.baseStyle}.${opt.style}`
+    option.baseStyle = `${option.baseStyle}.${option.style}`
   }
 
-  option.style = `${STYLE_PATH}.${opt.style}`
+  option.stylePath = `${STYLE_PATH}.${option.style}`
   return option
 }
 
@@ -117,23 +117,23 @@ function processLoader (loader, source, cb) {
     )
   }
 
-  const asyncInjectStyle = (style) => {
+  const asyncInjectStyle = (stylePath) => {
     const callback = cb || loader.async()
-    loader.resolve(loader.context, style, (err, result) => {
+    loader.resolve(loader.context, stylePath, (err, result) => {
       if (err) {
         if (loader.mode === 'development') {
-          console.log(`\nSKIPPING INJECTING STYLE ${style} TO ${loader.resourcePath} WHICH NOT EXIST`, err)
+          console.log(`\nSKIPPING INJECTING STYLE ${stylePath} TO ${loader.resourcePath} WHICH NOT EXIST`, err)
         }
         return callback(null, source)
       }
       loader.addDependency(result)
-      callback(null, injectStyle(source, style))
+      callback(null, injectStyle(source, stylePath))
     })
   }
 
   const isComponent = conf.componentRule && loader.resourcePath.match(conf.componentRule)
   if (isComponent) {
-    asyncInjectStyle(conf.style)
+    asyncInjectStyle(conf.stylePath)
     return
   }
 
