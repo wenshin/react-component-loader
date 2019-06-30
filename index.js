@@ -46,56 +46,61 @@ function injectStyle (source, style, first) {
 }
 
 const optionsCached = {
-  baseStyleTarget: '',
   baseStyles: [],
   components: null
 }
 
-async function cacheOptions (loader, context, components, parent) {
-  if (!components) {
-    return
+async function cacheOptions (loader, context, components) {
+  const options = {
+    baseStyles: [],
+    components: []
   }
 
-  for (const comp of components) {
-    const conf = createOption(comp, parent && { style: parent.style })
-    if (conf.baseStyle) {
-      try {
-        const baseStyle = await loader.resolve.promise(context, conf.baseStyle)
-        optionsCached.baseStyles.push(baseStyle)
-        loader.addDependency(baseStyle)
-      } catch (err) {
-        if (loader.mode === 'development') {
-          console.log(`\n${conf.baseStyle} IS NOT RESOLVED`, err)
-        }
-      }
+  async function iter (_loader, _context, _components, _parent) {
+    if (!_components) {
+      return
     }
 
-    if (conf.lib) {
-      try {
-        const pkgPath = await loader.resolve.promise(context, `${conf.lib}/package.json`)
-        const pkg = require(pkgPath)
-        const ctx = pkgPath.replace('/package.json', '')
-
-        conf.test = new RegExp(ctx)
-        if (pkg.components) {
-          await cacheOptions(loader, ctx, pkg.components, conf)
-        }
-      } catch (err) {
-        if (loader.mode === 'development') {
-          console.log(`\n${conf.lib} IS NOT A NODE_MODULE`, err)
+    for (const comp of _components) {
+      const conf = createOption(comp, _parent && { style: _parent.style })
+      if (conf.baseStyle) {
+        try {
+          const baseStyle = await _loader.resolve.promise(_context, conf.baseStyle)
+          options.baseStyles.push(baseStyle)
+          _loader.addDependency(baseStyle)
+        } catch (err) {
+          if (_loader.mode === 'development') {
+            console.log(`\n${conf.baseStyle} IS NOT RESOLVED`, err)
+          }
         }
       }
+
+      if (conf.lib) {
+        try {
+          const pkgPath = await _loader.resolve.promise(_context, `${conf.lib}/package.json`)
+          const pkg = require(pkgPath)
+          const ctx = pkgPath.replace('/package.json', '')
+
+          conf.test = new RegExp(ctx)
+          if (pkg.components) {
+            await iter(_loader, ctx, pkg.components, conf)
+          }
+        } catch (err) {
+          if (_loader.mode === 'development') {
+            console.log(`\n${conf.lib} IS NOT A NODE_MODULE`, err)
+          }
+        }
+      }
+      options.components.push(conf)
     }
-    optionsCached.components.push(conf)
   }
+
+  await iter(loader, context, components)
+  optionsCached.components = options.components
+  optionsCached.baseStyles = options.baseStyles
 }
 
 function processLoader (loader, source, cb) {
-  const isBaseStyleTarget = optionsCached.baseStyleTarget && loader.resourcePath === optionsCached.baseStyleTarget
-  if (isBaseStyleTarget) {
-    return injectStyle(source, optionsCached.baseStyles, true)
-  }
-
   let conf = null
   for (const comp of optionsCached.components) {
     if (loader.resourcePath.match(comp.test)) {
@@ -107,7 +112,7 @@ function processLoader (loader, source, cb) {
     return source
   }
 
-  const isAssets = optionsCached.assetsRule && loader.resourcePath.match(optionsCached.assetsRule)
+  const isAssets = conf.assetsRule && loader.resourcePath.match(conf.assetsRule)
 
   if (isAssets) {
     // replace `export const JPG = './foo.jpg'` to `export { default as JPG } from './foo.jpg'`
@@ -141,20 +146,35 @@ function processLoader (loader, source, cb) {
 }
 
 module.exports = function reactComponentLoader (source) {
-  if (!optionsCached.components) {
-    const options = getOptions(this)
-    optionsCached.baseStyleTarget = options.baseStyleTarget
-    optionsCached.components = []
-    this.resolve.promise = promisify(this.resolve.bind(this))
-    const callback = this.async()
-    cacheOptions(this, this.context, options.components)
-      .then(() => {
-        const src = processLoader(this, source, callback)
-        if (src) {
-          callback(null, src)
-        }
-      })
+  const options = getOptions(this)
+  const isBaseStyleTarget = options.baseStyleTarget && this.resourcePath === options.baseStyleTarget
+
+  optionsCached.baseStyleTarget = options.baseStyleTarget
+  if (isBaseStyleTarget) {
+    if (!optionsCached.components) {
+      this.resolve.promise = promisify(this.resolve.bind(this))
+      const callback = this.async()
+      cacheOptions(this, this.context, options.components)
+        .then(() => {
+          callback(null, injectStyle(source, optionsCached.baseStyles, true))
+        })
+    } else {
+      return injectStyle(source, optionsCached.baseStyles, true)
+    }
   } else {
-    return processLoader(this, source)
+    if (!optionsCached.components) {
+      this.resolve.promise = promisify(this.resolve.bind(this))
+      const callback = this.async()
+      cacheOptions(this, this.context, options.components)
+        .then(() => {
+          const src = processLoader(this, source, callback)
+          // if processLoader is async, will return undefined
+          if (src) {
+            callback(null, src)
+          }
+        })
+    } else {
+      return processLoader(this, source)
+    }
   }
 }

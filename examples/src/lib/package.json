@@ -8,6 +8,6 @@
   "author": "wenshin2011@gmail.com",
   "license": "MIT",
   "components": [
-    { "lib": "./lib-inner", "baseStyle": "./lib-inner/style/base.less" }
+    { "lib": "./lib-inner", "baseStyle": "./lib-inner/style/base" }
   ]
 }
