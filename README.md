@@ -17,7 +17,13 @@ component
 │   └── index.css
 └── index.js
 ```
-you can see more examples in `.examples/src`
+you can see more examples in `.examples/src`.
+
+!!!WARNING!!! the `component/index.js` can't only be
+```
+epxort { default } from './Component';
+```
+this will cause webpack handshake mechanism and lose style injection
 
 ## Assets (Experiment)
 when match `/assets/index.(js|ts|jsx|tsx)/`, the loader will change

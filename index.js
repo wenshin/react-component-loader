@@ -67,7 +67,6 @@ async function cacheOptions (loader, context, components) {
         try {
           const baseStyle = await _loader.resolve.promise(_context, conf.baseStyle)
           options.baseStyles.push(baseStyle)
-          _loader.addDependency(baseStyle)
         } catch (err) {
           if (_loader.mode === 'development') {
             console.log(`\n${conf.baseStyle} IS NOT RESOLVED`, err)
@@ -132,6 +131,9 @@ function processLoader (loader, source, cb) {
         return callback(null, source)
       }
       loader.addDependency(result)
+      if (source.match(/export\s+{\s*default(\s+as\s+\w)?\s*}\s+from\s+['"][^'"]+['"]/)) {
+        loader.emitWarning(new Error('the `export {default} from "xxx";` may cause handshake and lose style, you can use `import A from "xxx"; export default A;`'))
+      }
       callback(null, injectStyle(source, stylePath))
     })
   }
@@ -156,9 +158,11 @@ module.exports = function reactComponentLoader (source) {
       const callback = this.async()
       cacheOptions(this, this.context, options.components)
         .then(() => {
+          optionsCached.baseStyles.forEach(style => this.addDependency(style))
           callback(null, injectStyle(source, optionsCached.baseStyles, true))
         })
     } else {
+      optionsCached.baseStyles.forEach(style => this.addDependency(style))
       return injectStyle(source, optionsCached.baseStyles, true)
     }
   } else {
